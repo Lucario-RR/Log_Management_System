@@ -132,24 +132,65 @@ class Log:
         self.config = LogConfig()
 
     def appendMsg(self,log_msg:Message):
+        """
+        Add a new log message to Log
+
+        Args:
+            log_msg: One line of log message in Class Message frmat
+        """
         self.log_list.append(log_msg)
         self.printMsg() # -1 if invalid
         
-    def editMsg(self,index:int,new_log_msg:Message):
+    def replaceMsg(self,index:int,new_log_msg:Message):
+        """
+        Replace the message at index position with a new message of data type Class Message
+        
+        Args:
+            index: Identify which line to be replaced
+            new_log_msg: New message in data type Class Message
+        """
         self.log_list[index] = new_log_msg
-        self.printMsg()
+        self.printMsg(index)
+
+    def removeMsg(self,index:int):
+        """
+        Remove the log message at index line
+
+        Args:
+            index: Identify which line to be removed
+        """
+        self.log_list.pop(index)
 
     def exportLog(self):
+        """
+        Export whole log to destinated file.
+        """
         pass
 
     def printMsg(self,index:int=-1):
+        """
+        Print last log message if required in Class Config
+
+        Args:
+            index: Identify which line to be printed, default -1
+        """
         if self.config.print_input:
             print(self.log_list[index])
 
     def sortLog(self):
+        """
+        Sort the list by time using quick sort
+        Quick sort to be developed
+        """
         pass
 
     def __str__(self)->str:
+        """
+        Output one message per line
+
+        Returns:
+            1 log message per line for all log messages
+        """
         return "\n".join(self.log_list)
 
 
