@@ -72,6 +72,9 @@ class Message:
             level: Urgency of this line, default 7
             msg: message content, default ""
 
+        Example:
+        Message(level=8,msg="Message Content")
+        2025-01-01 00:00:00.000 [DEBUG] Message Content
         """
         self.time = time 
         self.level = LogLevel(level)
@@ -122,7 +125,6 @@ class Log:
 
         Args:
             log_list: a list of Class Message
-            config: column to return
 
         Returns:
             pd.Series or pd.DataFrame
@@ -139,7 +141,7 @@ class Log:
             log_msg: One line of log message in Class Message frmat
         """
         self.log_list.append(log_msg)
-        self.printMsg() # -1 if invalid
+        self.afterOperation()
         
     def replaceMsg(self,index:int,new_log_msg:Message):
         """
@@ -150,7 +152,7 @@ class Log:
             new_log_msg: New message in data type Class Message
         """
         self.log_list[index] = new_log_msg
-        self.printMsg(index)
+        self.afterOperation(index)
 
     def removeMsg(self,index:int):
         """
@@ -160,12 +162,26 @@ class Log:
             index: Identify which line to be removed
         """
         self.log_list.pop(index)
-
-    def exportLog(self):
+        # Save after removing
+        self.export()
+    
+    def afterOperation(self,index:int=-1):
         """
-        Export whole log to destinated file.
+        Does everything after append, modify message
+        
+        Args:
+            index: Identify line to perform print, check order, default -1
         """
-        pass
+        # Print Message
+        self.printMsg(index)
+        # Check order
+        if self.checkOrder(index):
+            # Save if in order
+            self.save()
+        else:
+            # Sort and export if not in order
+            self.sort()
+            self.export()
 
     def printMsg(self,index:int=-1):
         """
@@ -177,12 +193,69 @@ class Log:
         if self.config.print_input:
             print(self.log_list[index])
 
-    def sortLog(self):
+    def checkOrder(self,index:int)->bool:
         """
-        Sort the list by time using quick sort
-        Quick sort to be developed
+        Check if append message is in time order. Default check one line before and after.
+
+        Arg:
+            index: Identify position to check, set 0 to check everything
         """
-        pass
+        if index == 0:
+            # Check everything
+            if self.sort():
+                pass
+                ### Show sorted already
+            else:
+                ### Show now sorted
+                pass
+        else:
+            # Check if reach two end
+            # And handling edges
+            # Check front and last
+            pass
+
+    def sort(self)->bool:
+        """
+        Check if sorted, if not sort it by datetime using built in function
+        Return True or False to indicate sorted already
+
+        Returns:
+            True or False
+        """
+        # Pre-sort the list
+        temp = sorted(self.log_list, key=lambda line:line.time)
+        
+        # If sorted
+        if self.log_list == temp:
+            return True
+        # If not sorted, add pre-sorted to it
+        else:
+            self.log_list = temp
+            return False
+        
+
+    def save(self):
+        """
+        Save the last message to system, used when a new line has append
+        """
+        try:
+            with open(self.config.file_path,'a') as file:
+                file.append(f"{self.log_list[-1]}\n")
+        except FileExistsError:
+            ### Raise file error
+            pass
+
+    def export(self):
+        """
+        Save the whole log to file, used when message in the middle has modified
+        """
+        try:
+            with open(self.config.file_path,'w') as file:
+                for msg in self.log_list:
+                    file.append(f"{msg}\n")
+        except FileExistsError:
+            ### Raise file error
+            pass
 
     def __str__(self)->str:
         """
