@@ -126,6 +126,22 @@ class Log:
         Args:
             log_list: a list of Class Message
 
+        Public Variables and Methods:
+            self.log_list
+            self.config
+            appendMsg(self,log_msg:Message)
+            replaceMsg(self,index:int,new_log_msg:Message)
+            removeMsg(self,index:int)
+            printMsg(self,index:int=-1)
+            export(self)
+
+        Private Variables and Methods:
+            __afterOperation(self,index:int=-1)
+            __checkOrder(self,index:int)->bool
+            __sort(self)->bool
+            __save(self)
+            __str__(self)->str
+        
         Returns:
             pd.Series or pd.DataFrame
 
@@ -141,7 +157,7 @@ class Log:
             log_msg: One line of log message in Class Message frmat
         """
         self.log_list.append(log_msg)
-        self.afterOperation()
+        self.__afterOperation()
         
     def replaceMsg(self,index:int,new_log_msg:Message):
         """
@@ -152,7 +168,7 @@ class Log:
             new_log_msg: New message in data type Class Message
         """
         self.log_list[index] = new_log_msg
-        self.afterOperation(index)
+        self.__afterOperation(index)
 
     def removeMsg(self,index:int):
         """
@@ -165,9 +181,12 @@ class Log:
         # Save after removing
         self.export()
     
-    def afterOperation(self,index:int=-1):
+    def __afterOperation(self,index:int=-1):
         """
         Does everything after append, modify message
+        1. Print message
+        2. Check order and sort if needed
+        3. Save / Export on demand
         
         Args:
             index: Identify line to perform print, check order, default -1
@@ -175,12 +194,11 @@ class Log:
         # Print Message
         self.printMsg(index)
         # Check order
-        if self.checkOrder(index):
+        if self.__checkOrder(index):
             # Save if in order
-            self.save()
+            self.__save()
         else:
-            # Sort and export if not in order
-            self.sort()
+            # Export if not in order
             self.export()
 
     def printMsg(self,index:int=-1):
@@ -193,28 +211,40 @@ class Log:
         if self.config.print_input:
             print(self.log_list[index])
 
-    def checkOrder(self,index:int)->bool:
+    def __checkOrder(self,index:int)->bool:
         """
         Check if append message is in time order. Default check one line before and after.
+        If sorted, return True
+        If not sorted, sort it and return False
 
         Arg:
             index: Identify position to check, set 0 to check everything
         """
         if index == 0:
             # Check everything
-            if self.sort():
-                pass
-                ### Show sorted already
+            if self.__sort():
+                return True
             else:
-                ### Show now sorted
-                pass
+                return False
         else:
-            # Check if reach two end
-            # And handling edges
-            # Check front and last
-            pass
+            # If n-1 <= n
+            if self.log_list[index-1].time <= self.log_list[index].time:
+                try:
+                    # AND NOT n+1 < n
+                    if self.log_list[index+1].time < self.log_list[index].time:
+                        self.__sort()
+                        return False
+                # For cases that index item not found
+                except IndexError:
+                    pass
+                # AND n+1 < n
+                return True
+            # If n-1 > n, False
+            else:
+                self.__sort()
+                return False
 
-    def sort(self)->bool:
+    def __sort(self)->bool:
         """
         Check if sorted, if not sort it by datetime using built in function
         Return True or False to indicate sorted already
@@ -233,14 +263,13 @@ class Log:
             self.log_list = temp
             return False
         
-
-    def save(self):
+    def __save(self):
         """
         Save the last message to system, used when a new line has append
         """
         try:
             with open(self.config.file_path,'a') as file:
-                file.append(f"{self.log_list[-1]}\n")
+                file.write(f"{self.log_list[-1]}\n")
         except FileExistsError:
             ### Raise file error
             pass
@@ -252,7 +281,7 @@ class Log:
         try:
             with open(self.config.file_path,'w') as file:
                 for msg in self.log_list:
-                    file.append(f"{msg}\n")
+                    file.write(f"{msg}\n")
         except FileExistsError:
             ### Raise file error
             pass
@@ -269,8 +298,6 @@ class Log:
 
 
 """
-For a log it can:
-
 Configs:
 
 """
