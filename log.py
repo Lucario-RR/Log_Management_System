@@ -1,16 +1,43 @@
 from datetime import datetime as dt
+from datetime import timezone,timedelta
+import os
 
 class LogConfig:
-    def __init__(self):
-        # I/O
-        self.print_input = False
-        self.max_print_level = 8
-        self.file_path = 'logs/'
-        self.timezone = ''
-        # Processing
+    def __init__(self,time_zone_offset:int=0,max_print_level:int=8,max_output_level:int=8,program_name:str='',folder_path:str='logs'):
+        """
+        A class of all the configs
+
+        Args:
+            time_zone_offset: int value of timezone
+            max_print_level: indicate the max level of message to show in command line
+            max_output_level: indicate the max level of message to save to file
+            program_name: name of your project/program, used for create log file name
+            folder_path: path for storing logfiles
+        
+        Public Variables:
+        self.timezone
+        self.max_print_level
+        self.max_output_level
+        self.program_name
+        self.folder_path
+        self.file_path
+        self.__print__
+        """
 
         # General
-        self.timezone = 0
+        self.timezone = timezone(timedelta(hours=time_zone_offset))
+
+        # I/O
+        self.max_print_level = max_print_level
+        self.max_output_level = max_output_level
+        self.program_name = program_name
+        self.folder_path = folder_path
+        self.file_path = f"{self.folder_path}/[{self.program_name}]{dt.now(self.timezone).strftime('%Y%m%d_%H%M%S')}.log"
+        os.makedirs(self.folder_path, exist_ok=True) # Create the folder if itdoesn't exist
+    
+    def __str__(self)->str:
+        pass
+
 
 
 class LogLevel:
@@ -21,20 +48,35 @@ class LogLevel:
         Args:
             level: an int value representing urgent levels
 
-        Level indication:
-            1: Emergency
-            2: Alert
-            3: Critical
-            4: Error
-            5: Warning
-            6: Notice
-            7: Informational
-            8: Debug
+        Private Variables and Methods:
+            intLogLevel(self)->int
+            self.__log_level
+            self.__level_mapping
+            __str__(self)->str
 
         Ref:
             PSR-3: Logger Interface https://www.php-fig.org/psr/psr-3/
         """
         self.log_level = level
+        self.__level_mapping = {
+            1: "EMERGENCY",
+            2: "ALERT",
+            3: "CRITICAL",
+            4: "ERROR",
+            5: "WARNING",
+            6: "NOTICE",
+            7: "INFO",
+            8: "DEBUG",
+        }
+
+    def intLevel(self)->int:
+        """
+        Output level as int for comparing levels
+
+        Returns:
+            log_level in int
+        """
+        return self.log_level
 
     def __str__(self)->str:
         """
@@ -43,22 +85,7 @@ class LogLevel:
         Returns:
             Each level in string
         """
-        if self.log_level == 1:
-            return("EMERGENCY")
-        elif self.log_level == 2:
-            return("ALERT")
-        elif self.log_level == 3:
-            return("CRITICAL")
-        elif self.log_level == 4:
-            return("ERROR")
-        elif self.log_level == 5:
-            return("WARNING")
-        elif self.log_level == 6:
-            return("NOTICE")
-        elif self.log_level == 7:
-            return("INFO")
-        elif self.log_level == 8:
-            return("DEBUG")
+        return self.__level_mapping[self.log_level]
 
 
 
@@ -72,9 +99,19 @@ class Message:
             level: Urgency of this line, default 7
             msg: message content, default ""
 
-        Example:
-        Message(level=8,msg="Message Content")
-        2025-01-01 00:00:00.000 [DEBUG] Message Content
+        Public Variables and Methods:
+            changeTime(self,new_time:dt=dt.now())
+            changeLevel(self,new_level:int=7)
+            changeMsg(self,new_msg:str="")
+
+        Private Variables and Methods:
+
+
+        Call Example:
+        Message(level=8,msg="Message Content 1")
+        2025-01-01 00:00:00.000 [DEBUG] Message Content 1
+        Message(level=5,msg="Message Content 2")
+        2025-01-01 00:00:00.000 [WARNING] Message Content 2
         """
         self.time = time 
         self.level = LogLevel(level)
@@ -114,17 +151,17 @@ class Message:
         Returns:
             1 log message in format
         """
-        return f"{self.time.strftime("%H:%M:%S.%f")[:-3]}[{self.level}] {self.msg}" # [:-3] used to take first 3 digit of microsecond
+        return f"{self.time.strftime('%H:%M:%S.%f')[:-3]}[{self.level}] {self.msg}" # [:-3] used to take first 3 digit of microsecond
 
 
 
 class Log:
-    def __init__(self):
+    def __init__(self,config:LogConfig):
         """
         Log class conbines every log message and has some basic methods to do
 
         Args:
-            log_list: a list of Class Message
+            config: initialized configs with Class LogConfig
 
         Public Variables and Methods:
             self.log_list
@@ -141,13 +178,9 @@ class Log:
             __sort(self)->bool
             __save(self)
             __str__(self)->str
-        
-        Returns:
-            pd.Series or pd.DataFrame
-
         """
         self.log_list = []
-        self.config = LogConfig()
+        self.config = config
 
     def appendMsg(self,log_msg:Message):
         """
@@ -208,7 +241,7 @@ class Log:
         Args:
             index: Identify which line to be printed, default -1
         """
-        if self.config.print_input:
+        if self.log_list[index].level.log_level <= self.config.max_print_level:
             print(self.log_list[index])
 
     def __checkOrder(self,index:int)->bool:
@@ -226,6 +259,9 @@ class Log:
                 return True
             else:
                 return False
+        # Return True if only one item
+        elif len(self) == 1:
+            return True
         else:
             # If n-1 <= n
             if self.log_list[index-1].time <= self.log_list[index].time:
@@ -267,12 +303,13 @@ class Log:
         """
         Save the last message to system, used when a new line has append
         """
-        try:
-            with open(self.config.file_path,'a') as file:
-                file.write(f"{self.log_list[-1]}\n")
-        except FileExistsError:
-            ### Raise file error
-            pass
+        if self.log_list[-1].level.log_level <= self.config.max_output_level:
+            try:
+                with open(self.config.file_path,'a') as file:
+                    file.write(f"{self.log_list[-1]}\n")
+            except FileExistsError:
+                ### Raise file error
+                pass
 
     def export(self):
         """
@@ -281,7 +318,8 @@ class Log:
         try:
             with open(self.config.file_path,'w') as file:
                 for msg in self.log_list:
-                    file.write(f"{msg}\n")
+                    if msg.level.log_level <= self.config.max_output_level:
+                        file.write(f"{msg}\n")
         except FileExistsError:
             ### Raise file error
             pass
@@ -293,9 +331,29 @@ class Log:
         Returns:
             1 log message per line for all log messages
         """
-        return "\n".join(self.log_list)
+        if len(self.log_list) == 0:
+            return "Empty log!"
+        return "\n".join(str(msg) for msg in self.log_list)
+    
+    def __len__(self)->int:
+        return len(self.log_list)
 
 
+
+# Testing 
+# Initialize
+config = LogConfig(time_zone_offset=0,max_print_level=7,max_output_level=7,program_name='TestLOG',folder_path='logs')
+log = Log(config)
+log.appendMsg(Message(level=5,msg="Message Content 1",time=dt(2025,1,1,12,0,0)))
+print("1")
+print(log)
+log.appendMsg(Message(level=5,msg="Message Content 2",time=dt(2025,1,1,14,0,0)))
+print("2")
+print(log)
+log.appendMsg(Message(level=5,msg="Message Content 3",time=dt(2025,1,1,13,0,0)))
+print("3")
+print(log)
+print(len(log))
 
 """
 Configs:
