@@ -1,6 +1,7 @@
 from datetime import datetime as dt
 from datetime import timezone,timedelta
 import os
+import atexit
 
 class LogConfig:
     def __init__(self,time_zone_offset:int=0,max_print_level:int=8,max_output_level:int=8,program_name:str='',folder_path:str='logs'):
@@ -115,7 +116,7 @@ class Message:
         """
         self.time = time 
         self.level = LogLevel(level)
-        self.msg = msg
+        self.msg = str(msg) # Convert to string incase didn't
 
     def changeTime(self,new_time:dt=dt.now()):
         """
@@ -181,6 +182,7 @@ class Log:
         """
         self.log_list = []
         self.config = config
+        self.appendMsg(Message(level=7,msg="Program Start! Log system initialized!"))
 
     def appendMsg(self,log_msg:Message):
         """
@@ -303,13 +305,14 @@ class Log:
         """
         Save the last message to system, used when a new line has append
         """
-        if self.log_list[-1].level.log_level <= self.config.max_output_level:
+        if self.log_list[-1].level.log_level <= self.config.max_output_level: # Check if message reach the level of output
             try:
                 with open(self.config.file_path,'a') as file:
                     file.write(f"{self.log_list[-1]}\n")
             except FileExistsError:
-                ### Raise file error
-                pass
+                # Raise file error
+                self.log_list.append(Message(level=4,msg="FileExistsError while saving last line of log!"))
+                self.printMsg(-1)
 
     def export(self):
         """
@@ -318,11 +321,12 @@ class Log:
         try:
             with open(self.config.file_path,'w') as file:
                 for msg in self.log_list:
-                    if msg.level.log_level <= self.config.max_output_level:
+                    if msg.level.log_level <= self.config.max_output_level: # Check if message reach the level of output
                         file.write(f"{msg}\n")
         except FileExistsError:
-            ### Raise file error
-            pass
+            # Raise file error
+            self.log_list.append(Message(level=4,msg="FileExistsError while export log! Log file may not be saved!"))
+            self.printMsg(-1)
 
     def __str__(self)->str:
         """
@@ -339,36 +343,3 @@ class Log:
         return len(self.log_list)
 
 
-
-# Testing 
-# Initialize
-config = LogConfig(time_zone_offset=0,max_print_level=7,max_output_level=7,program_name='TestLOG',folder_path='logs')
-log = Log(config)
-log.appendMsg(Message(level=5,msg="Message Content 1",time=dt(2025,1,1,12,0,0)))
-print("1")
-print(log)
-log.appendMsg(Message(level=5,msg="Message Content 2",time=dt(2025,1,1,14,0,0)))
-print("2")
-print(log)
-log.appendMsg(Message(level=5,msg="Message Content 3",time=dt(2025,1,1,13,0,0)))
-print("3")
-print(log)
-print(len(log))
-
-"""
-Configs:
-
-"""
-"""
-    Introduction
-
-    Args:
-        data: intraday data
-        col: column to return
-
-    Returns:
-        pd.Series or pd.DataFrame
-    
-    Examples:
-
-"""
