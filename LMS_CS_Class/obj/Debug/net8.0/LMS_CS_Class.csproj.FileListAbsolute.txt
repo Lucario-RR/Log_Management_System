@@ -1,0 +1,12 @@
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\bin\Debug\net8.0\LMS_CS_Class.deps.json
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\bin\Debug\net8.0\LMS_CS_Class.dll
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\bin\Debug\net8.0\LMS_CS_Class.pdb
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.AssemblyInfoInputs.cache
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.AssemblyInfo.cs
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.csproj.CoreCompileInputs.cache
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.sourcelink.json
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.dll
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\refint\LMS_CS_Class.dll
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.pdb
+C:\Users\Andy\OneDrive - University of Bristol\Documents\App\Log_Management_System\LMS_CS_Class\obj\Debug\net8.0\ref\LMS_CS_Class.dll
