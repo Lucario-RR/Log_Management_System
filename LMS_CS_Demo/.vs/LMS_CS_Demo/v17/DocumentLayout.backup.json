@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Andy\\OneDrive - University of Bristol\\Documents\\App\\Log_Management_System\\LMS_CS_Demo\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{628F1E44-4201-4965-83F7-52685CBBE1E6}|LMS_CS_Demo.csproj|c:\\users\\andy\\onedrive - university of bristol\\documents\\app\\log_management_system\\lms_cs_demo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{628F1E44-4201-4965-83F7-52685CBBE1E6}|LMS_CS_Demo.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\Andy\\OneDrive - University of Bristol\\Documents\\App\\Log_Management_System\\LMS_CS_Demo\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\Andy\\OneDrive - University of Bristol\\Documents\\App\\Log_Management_System\\LMS_CS_Demo\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB8AAAAcAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-24T23:49:43.704Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

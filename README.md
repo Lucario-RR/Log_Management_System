@@ -1,96 +1,63 @@
 # Log Management System
 
 ## Overview
-The **Log Management System** is a Python-based logging utility designed to store, manage, and display log messages efficiently. It provides features such as logging messages with different urgency levels, saving logs to a file, and printing them to the console based on configurable settings.
+The **Log Management System** is a multi language (Python or C#) logging utility designed to store, manage, and display log messages efficiently. It provides features such as logging messages with different urgency levels, saving logs to a file, and printing them to the console based on configurable settings.
 
 ## Features
 - Configurable logging settings (timezone, log levels, file storage location)
 - Log message management (append, replace, remove)
 - Configurable output to console and file
 - Use [PSR-3: Logger Interface](https://www.php-fig.org/psr/psr-3/) to identify the importance of a log message
+- Introduced **Status Code** which can quickly identify the position of code where output to log (C# feature only for now)
 - Ensures log integrity and order via automated sorting based on timestamps and validation
 
-## Installation
-Simpily download `log.py` file in repository and leave it in your own project folder.  
-You may also clone or download the repository:
-```bash
-$ git clone https://github.com/your-repo/Log_Management_System.git
-```
+## Status Code
+(This is a unique feature on C# version, where Python version will adapt this soon.)
 
-## Usage
-### 1. Initialize
-You may use `example.py` template in the repository or use following code to setup log system:
-```python
-from log_system import LogConfig, Log, Message
+A status code is used to pointing the location of message. It consists a minimum of 5 digits:
 
-config = LogConfig(
-    time_zone_offset=0,   # Set your timezone in int
-    max_print_level=7,    # Maximum level for print out
-    max_output_level=8,   # Maximum level for save to log file
-    program_name='MyApp', # Your Program Name
-    folder_path='logs'    # Folder for storing logs
-)
-log = Log(config)
-```
-Note that for `max_print_level` and `max_output_level`, the int value you may refer to reference part at the end of documentation.
+Short version: `A B CCC`  
+Long version: `A B CCCDD`
 
-I am strongly recommend you importing `datetime` module, as this may be helpful to add message with a given time.
-```python
-from datetime import datetime as dt
-```
-If you wish to indicate a message after program finished normally (e.g. not killed), you may add following code at initialize section:
-```Python
-import atexit
+| Digit | Value Accepted | Definition |
+|-------|----------------|------------|
+| A     | 1-9, 0 & A-E reserved for extension| A fixed single integer digit, indicates the level of log message, by using the table above. 9 is used for consol debug only. |
+| B     | A-Z | Status code use a single char digit, inticates the category of log message, e.g. network, database connection... |
+| CCC    | 0x000-0xFFF | A minimum of 3 digits HEX value, indicates the details of each message means. A maximum of 16^3 = 4096 status may be record under each category. Code may vary across different projects. |
+| CCCDD    | 0x00000-0xFFFFF | Optional DD. CCCDD may be used if 3 digits HEX are running out. This extends the total status to 16^5 = 1048576. |
 
-# While terminate
-def normalTermination():
-    global log
-    log.appendMsg(Message(level=7,msg="Program exit as expected, log file saved!"))
+## Status Code in Hex
+A Hex version of status code is also available, it is extremely useful when working in languages like C family.
 
-atexit.register(normalTermination)
-```
+The minumum length of status code **A B CCC** is 6 Hex digits, i.e. 3 bytes.  
+The maximum length of **A B CCCDD** is 8 Hex digits, i.e. 4 bytes.
 
-### 2. Add Log Messages
-Examples on adding messages, time value will be the moment adding message:
-```python
-log.appendMsg(Message(level=8, msg="Debugging application"))
-log.appendMsg(Message(level=4, msg="An error occurred!"))
-```
+| Digit | Hex Length | Hex Value Accepted |
+|-------|------------|--------------------|
+| A     | 1 | 0x1-0x9, 0x0 & 0xA-0xE reserved |
+| B     | 2 | 0x41-0x5A |
+| CCC   | 3 | 0x000-0xFFF|
+| CCCDD | 5 | 0x00000-0xFFFFF|
 
-You may also bring a timestamp for message rather than now:
-```Python
-log.appendMsg(Message(level=7, msg="Info message with user defined time", time=dt(2025,2,8,20,21,00)))
-```
+## Status Code Category
+This is only suggestion for definition of char in digit B. This may vary across different projects, apart from `L` has been used for this LMS.
 
-Please remember to global log if you are using inside a function:
-```Python
-def menu():
-    global log
-```
+| SC | Hex Value | Definition |
+|----|-----------|------------|
+| A | 0x41 |  |
+| B | 0x42 |  |
 
-### 3. Replace Log Messages
-You may edit a message's level or content directly.  
-But I would suggest replacing with a new Message:
-```python
-log.replaceMsg(1, Message(level=5, msg="Updated warning message"))
-#Parameter: (position index to replace, Message)
-```
+## Installation and Usage
+Please check the corresponding README for Python and C#, as they have different grammar on installation or calling LMS.
 
-### 4. Remove Log Messages
-```Python
-log.removeMsg(0)  # Provide int index
-```
-
-### 5. Save Logs
-Logs are automatically saved. You may manually export all logs just in case:
-```python
-log.export()
-```
-
+Currently C# has slightly extra feature than Python. (C# uses status code where Python only uses log levels)
 
 
 ## File Output Format
-Log messages are stored in `logs/[program_name]_YYYYMMDD_HHMMSS.log` (default path) in the following format:
+We aim to have exactly the same format for output, however due to slightly different features provided on two platforms, this section will be slightly different now.
+
+### Python
+Log messages are stored in `logs/[your_program_name]_YYYYMMDD_HHMMSS.log` (default path) in the following format:
 ```
 HH:MM:SS.mmm [LEVEL] Message Content
 ```
@@ -100,8 +67,11 @@ Example:
 14:32:00.456 [ERROR] Failed to connect to database.
 ```
 
-## Reference
-### Log Levels
+### C#
+AI is generating
+
+# Reference
+## Log Levels
 This log system uses [PSR-3: Logger Interface](https://www.php-fig.org/psr/psr-3/) for state log levels, here is a list:
 | Level | Name       |
 |-------|-----------|
@@ -114,7 +84,12 @@ This log system uses [PSR-3: Logger Interface](https://www.php-fig.org/psr/psr-3
 | 7     | INFO      |
 | 8     | DEBUG     |
 
-## Development log
+# Development log
+### v2.0.0 on 25 NOV 2025
+- LMS on C# released
+- Edit README, add information on Status Code.
+- Some of the markdown document is incomplete, will be fixed in next version
+
 ### v1.0.0 on 08 FEB 2025
 - First stable version released and this README created
 

@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="LMS_CS_Class">
+      <HintPath>..\LMS_CS_Class\obj\Debug\net8.0\LMS_CS_Class.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
